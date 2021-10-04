@@ -4,17 +4,11 @@ import commonjs from '@rollup/plugin-commonjs';
 
 export default {
     input: 'src/index.js',
-    compact: true,
-    output: [
-        {
-            file: 'build/renamer.cjs.js',
-            format: 'cjs',
-        },
-        {
-            file: 'build/renamer.esm.js',
-            format: 'esm',
-        },
-    ],
+    output: {
+        file: 'build/renamer.cjs.js',
+        format: 'cjs',
+        exports: 'auto',
+    },
     plugins: [
         nodeResolve(),
         commonjs(),
