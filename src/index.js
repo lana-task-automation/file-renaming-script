@@ -29,7 +29,7 @@ yargs(hideBin(process.argv))
                 alias: 'r',
                 describe: 'The string to rename to in filename',
                 demandOption: true,
-                requiresArg: true,
+                type: 'string',
             })
             .option('regex', {
                 describe: 'Use regex for matching string',
@@ -99,8 +99,10 @@ function revert(argv) {
 function main(argv) {
     function rename(s) {
         if (s == null || s.trim() === '') return;
-        if (argv.multi) return s.replace(new RegExp(argv.match, 'g'), argv.rename);
-        return argv.regex ? s.replace(new RegExp(argv.match), argv.rename) : s.replace(argv.match, argv.rename);
+
+        const newName = argv.rename ?? '';
+        if (argv.multi) return s.replace(new RegExp(argv.match, 'g'), newName);
+        return argv.regex ? s.replace(new RegExp(argv.match), newName) : s.replace(argv.match, newName);
     }
 
     const logs = openLogs(argv);
