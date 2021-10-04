@@ -31,8 +31,27 @@ const argv = yargs(hideBin(process.argv))
         default: false,
     })
     .option('multi', {
-        describe: 'Replace all match',
+        describe: 'Use regex for matching string, and replace all match',
         boolean: true,
-        default: true,
+        default: false,
     })
     .argv;
+
+function rename(s) {
+    if (s == null || s.trim() === '') return;
+    if (argv.multi) return s.replace(new RegExp(argv.match, 'g'), argv.rename);
+    return argv.regex ? s.replace(new RegExp(argv.match), argv.rename) : s.replace(argv.match, argv.rename);
+}
+
+console.log(`Scanning dir ${argv.dir}`);
+const files = fs.readdirSync(argv.dir);
+files.forEach(name => {
+    const newName = rename(name);
+    if (newName === name) return;
+
+    const file = path.resolve(argv.dir, name);
+    const newFile = path.resolve(argv.dir, newName);
+    fs.renameSync(file, newFile);
+    console.log(`Match ${name} => ${newName}`);
+});
+console.log(`Batch rename completed ${argv.dir}`);
