@@ -15,3 +15,9 @@ Show help
 ```shell
 $ node renamer.cjs.js -h
 ```
+
+Revert last change
+
+```shell
+$ node renamer.cjs.js revert
+```

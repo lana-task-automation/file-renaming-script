@@ -5,59 +5,56 @@ const path = require('path');
 
 const yargs = require('yargs');
 const { hideBin } = require('yargs/helpers');
-const argv = yargs(hideBin(process.argv))
-    .option('dir', {
-        alias: 'd',
-        describe: 'The target directory',
-        default: '.',
-        requiresArg: true,
-        normalize: true,
+const logPath = 'renamed.log';
+yargs(hideBin(process.argv))
+    .command({
+        command: ['rename', '$0'],
+        describe: 'Batch rename files',
+        handler: main,
+        builder: (yargs) => yargs
+            .option('dir', {
+                alias: 'd',
+                describe: 'The target directory',
+                default: '.',
+                requiresArg: true,
+                normalize: true,
+            })
+            .option('match', {
+                alias: 'm',
+                describe: 'The string to match in filename',
+                demandOption: true,
+                requiresArg: true,
+            })
+            .option('rename', {
+                alias: 'r',
+                describe: 'The string to rename to in filename',
+                demandOption: true,
+                requiresArg: true,
+            })
+            .option('regex', {
+                describe: 'Use regex for matching string',
+                boolean: true,
+                default: false,
+            })
+            .option('multi', {
+                describe: 'Use regex for matching string, and replace all match',
+                boolean: true,
+                default: false,
+            })
+            .option('log', {
+                describe: 'Log all changes applied',
+                boolean: true,
+                default: true,
+            }),
     })
-    .option('match', {
-        alias: 'm',
-        describe: 'The string to match in filename',
-        demandOption: true,
-        requiresArg: true,
-    })
-    .option('rename', {
-        alias: 'r',
-        describe: 'The string to rename to in filename',
-        demandOption: true,
-        requiresArg: true,
-    })
-    .option('regex', {
-        describe: 'Use regex for matching string',
-        boolean: true,
-        default: false,
-    })
-    .option('multi', {
-        describe: 'Use regex for matching string, and replace all match',
-        boolean: true,
-        default: false,
-    })
-    .option('log', {
-        describe: 'Log all changes applied',
-        boolean: true,
-        default: true,
-    })
-    .option('revert', {
-        describe: 'Revert latest change',
-        boolean: true,
-        default: false,
+    .command({
+        command: 'revert',
+        describe: 'Revert renamed files',
+        handler: revert,
     })
     .argv;
 
-const logPath = 'renamed.log';
-const logs = openLogs();
-
-if (argv.revert) {
-    revert();
-} else {
-    main();
-}
-
-
-function openLogs() {
+function openLogs(argv) {
     if (!argv.log) return [];
     try {
         if (!fs.existsSync(logPath)) fs.writeFileSync(logPath, '[]', 'utf-8');
@@ -71,13 +68,9 @@ function openLogs() {
     }
 }
 
-function rename(s) {
-    if (s == null || s.trim() === '') return;
-    if (argv.multi) return s.replace(new RegExp(argv.match, 'g'), argv.rename);
-    return argv.regex ? s.replace(new RegExp(argv.match), argv.rename) : s.replace(argv.match, argv.rename);
-}
-
-function revert() {
+function revert(argv) {
+    argv.log = true;
+    const logs = openLogs(argv);
     if (logs.length === 0) {
         console.log('Nothing to revert');
         return;
@@ -103,7 +96,14 @@ function revert() {
     fs.writeFileSync(logPath, JSON.stringify(logs, null, 2), 'utf-8');
 }
 
-function main() {
+function main(argv) {
+    function rename(s) {
+        if (s == null || s.trim() === '') return;
+        if (argv.multi) return s.replace(new RegExp(argv.match, 'g'), argv.rename);
+        return argv.regex ? s.replace(new RegExp(argv.match), argv.rename) : s.replace(argv.match, argv.rename);
+    }
+
+    const logs = openLogs(argv);
     console.log(`Scanning dir ${argv.dir}`);
     const files = fs.readdirSync(argv.dir);
 
