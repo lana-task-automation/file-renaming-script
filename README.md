@@ -20,13 +20,13 @@ Show help
 
 ```shell
 $ node renamer.cjs.js -h
-index.js rename
+renamer.cjs.js rename
 
 Batch rename files
 
 Commands:
-  index.js rename  Batch rename files                                  [default]
-  index.js revert  Revert renamed files
+  renamer.cjs.js rename  Batch rename files                                  [default]
+  renamer.cjs.js revert  Revert renamed files
 
 Options:
       --help     Show help                                             [boolean]
