@@ -22,7 +22,7 @@ class FileLogger {
     }
 
     open(): this {
-        if (!this.disabled) return this;
+        if (this.disabled) return this;
 
         try {
             if (!fs.existsSync(this.logPath)) fs.writeFileSync(this.logPath, '[]', 'utf-8');
