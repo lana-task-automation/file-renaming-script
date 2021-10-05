@@ -1,17 +1,27 @@
-const fs = require('fs');
+import fs from 'fs';
 
-function logger(argv) {
+export function logger(argv: { log: string }) {
     return new FileLogger(argv).open();
 }
 
+export interface Log {
+    time: string;
+    file: string;
+    newFile: string;
+}
+
 class FileLogger {
-    constructor(argv) {
+    private readonly disabled: boolean;
+    private readonly logPath: string;
+    private readonly logs: Log[][];
+
+    constructor(argv: { log: string }) {
         this.disabled = !argv.log || argv.log === 'false';
         this.logPath = this.disabled ? '' : argv.log;
         this.logs = [];
     }
 
-    open() {
+    open(): this {
         if (!this.disabled) return this;
 
         try {
@@ -19,7 +29,7 @@ class FileLogger {
             const raw = fs.readFileSync(this.logPath, 'utf-8');
             const logs = JSON.parse(raw);
             if (!Array.isArray(logs)) throw new Error('Invalid logs format');
-            this.logs = logs;
+            this.logs.push(...logs);
             return this;
         } catch {
             console.error('Cannot read log file, please check logs file json format or disable log with --log=false');
@@ -28,8 +38,12 @@ class FileLogger {
         return this;
     }
 
-    path() {
+    path(): string {
         return this.logPath;
+    }
+
+    isEmpty(): boolean {
+        return this.logs.length === 0;
     }
 
     flush() {
@@ -37,15 +51,12 @@ class FileLogger {
         fs.writeFileSync(this.logPath, JSON.stringify(this.logs, null, 2), 'utf-8');
     }
 
-    push(log) {
+    push(log: Log[]): this {
         this.logs.push(log);
+        return this;
     }
 
-    pop() {
-        return this.logs.pop();
+    pop(): Log[] {
+        return this.logs.pop() ?? [];
     }
 }
-
-module.exports = {
-    logger,
-};

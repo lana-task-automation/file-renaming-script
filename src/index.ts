@@ -1,12 +1,8 @@
-'use strict';
-
-const fs = require('fs');
-const path = require('path');
-
-const yargs = require('yargs');
-const { hideBin } = require('yargs/helpers');
-const { logger } = require('./log');
-const logPath = 'renamed.log';
+import { Log, logger } from './log';
+import fs from 'fs';
+import path from 'path';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 
 yargs(hideBin(process.argv))
     .command({
@@ -57,10 +53,9 @@ yargs(hideBin(process.argv))
     .argv;
 
 
-function revert(argv) {
-    argv.log = true;
+function revert(argv: { log: string }) {
     const logs = logger(argv);
-    if (logs.length === 0) {
+    if (logs.isEmpty()) {
         console.log('Nothing to revert');
         return;
     }
@@ -71,7 +66,7 @@ function revert(argv) {
         return;
     }
 
-    const errors = [];
+    const errors: Log[] = [];
     for (const entry of log) {
         try {
             fs.renameSync(entry.newFile, entry.file);
@@ -103,10 +98,10 @@ function main(argv) {
         process.exit(0);
     }
 
-    const log = [];
+    const log: Log[] = [];
     try {
         for (const name of files) {
-            if (name === logPath) continue;
+            if (name === logs.path()) continue;
 
             const newName = rename(name);
             if (newName === name) continue;
