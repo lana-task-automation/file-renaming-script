@@ -10,14 +10,31 @@ Rename all file contains hello to hi in specific folder
 $ node renamer.cjs.js --dir=/path/to/dir --match=hello --rename=hi
 ```
 
-Show help
-
-```shell
-$ node renamer.cjs.js -h
-```
-
 Revert last change
 
 ```shell
 $ node renamer.cjs.js revert
+```
+
+Show help
+
+```shell
+$ node renamer.cjs.js -h
+index.js rename
+
+Batch rename files
+
+Commands:
+  index.js rename  Batch rename files                                  [default]
+  index.js revert  Revert renamed files
+
+Options:
+      --help     Show help                                             [boolean]
+      --version  Show version number                                   [boolean]
+  -m, --match                                                         [required]
+  -r, --rename                                               [string] [required]
+  -d, --dir                                              [string] [default: "."]
+      --regex                                         [boolean] [default: false]
+      --multi                                         [boolean] [default: false]
+      --log                                            [boolean] [default: true]
 ```
