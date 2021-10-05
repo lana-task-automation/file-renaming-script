@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "module": "commonjs",
+    "module": "esnext",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strictNullChecks": true,
