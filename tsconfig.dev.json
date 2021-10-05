@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs"
+    // work around as ts-node cannot run if this set to esnext
+  }
+}
