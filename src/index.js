@@ -5,7 +5,9 @@ const path = require('path');
 
 const yargs = require('yargs');
 const { hideBin } = require('yargs/helpers');
+const { logger } = require('./log');
 const logPath = 'renamed.log';
+
 yargs(hideBin(process.argv))
     .command({
         command: ['rename', '$0'],
@@ -40,11 +42,6 @@ yargs(hideBin(process.argv))
                 describe: 'Use regex for matching string, and replace all match',
                 boolean: true,
                 default: false,
-            })
-            .option('log', {
-                describe: 'Log all changes applied',
-                boolean: true,
-                default: true,
             }),
     })
     .command({
@@ -52,25 +49,17 @@ yargs(hideBin(process.argv))
         describe: 'Revert renamed files',
         handler: revert,
     })
+    .option('log', {
+        describe: 'Log all changes applied, set to false to disable',
+        requiresArg: true,
+        default: 'renamed.log',
+    })
     .argv;
 
-function openLogs(argv) {
-    if (!argv.log) return [];
-    try {
-        if (!fs.existsSync(logPath)) fs.writeFileSync(logPath, '[]', 'utf-8');
-        const raw = fs.readFileSync(logPath, 'utf-8');
-        const logs = JSON.parse(raw);
-        if (!Array.isArray(logs)) throw new Error('Invalid logs format');
-        return logs;
-    } catch {
-        console.error('Cannot read log file, please check logs file json format or disable log with --log=false');
-        process.exit(1);
-    }
-}
 
 function revert(argv) {
     argv.log = true;
-    const logs = openLogs(argv);
+    const logs = logger(argv);
     if (logs.length === 0) {
         console.log('Nothing to revert');
         return;
@@ -93,7 +82,7 @@ function revert(argv) {
         }
     }
     if (errors.length > 0) logs.push(errors);
-    fs.writeFileSync(logPath, JSON.stringify(logs, null, 2), 'utf-8');
+    logs.flush();
 }
 
 function main(argv) {
@@ -105,7 +94,7 @@ function main(argv) {
         return argv.regex ? s.replace(new RegExp(argv.match), newName) : s.replace(argv.match, newName);
     }
 
-    const logs = openLogs(argv);
+    const logs = logger(argv);
     console.log(`Scanning dir ${argv.dir}`);
     const files = fs.readdirSync(argv.dir);
 
@@ -115,7 +104,6 @@ function main(argv) {
     }
 
     const log = [];
-    logs.push(log);
     try {
         for (const name of files) {
             if (name === logPath) continue;
@@ -130,7 +118,8 @@ function main(argv) {
             console.log(`Match ${name} => ${newName}`);
         }
     } finally {
-        if (argv.log && log.length > 0) fs.writeFileSync(logPath, JSON.stringify(logs, null, 2), 'utf-8');
+        logs.push(log);
+        logs.flush();
     }
     console.log(`Batch rename completed ${argv.dir}`);
 }
