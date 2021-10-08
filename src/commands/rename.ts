@@ -1,5 +1,5 @@
 import { CommandModule } from 'yargs';
-import { Log, logger } from '../log';
+import { fileLogger, Log } from '../log';
 import fs from 'fs';
 import path from 'path';
 
@@ -12,7 +12,7 @@ function main(argv) {
         return argv.regex ? s.replace(new RegExp(argv.match), newName) : s.replace(argv.match, newName);
     }
 
-    const logs = logger(argv);
+    const logs = fileLogger(argv);
     console.log(`Scanning dir ${argv.dir}`);
     const files = fs.readdirSync(argv.dir);
 

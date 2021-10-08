@@ -1,11 +1,11 @@
-import { Log, logger } from '../log';
+import { fileLogger, Log } from '../log';
 import fs from 'fs';
 import { Arguments, CommandModule } from 'yargs';
 
 function main(argv: Arguments & { log?: string }) {
     if (!argv.log) return;
 
-    const logs = logger(argv as { log: string });
+    const logs = fileLogger(argv as { log: string });
     if (logs.isEmpty()) {
         console.log('Nothing to revert');
         return;

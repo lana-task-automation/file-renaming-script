@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-export function logger(argv: { log: string }) {
+export function fileLogger(argv: { log: string }) {
     return new FileLogger(argv).open();
 }
 
