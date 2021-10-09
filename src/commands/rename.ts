@@ -2,6 +2,7 @@ import { CommandModule } from 'yargs';
 import { fileLogger, Log } from '../log';
 import fs from 'fs';
 import path from 'path';
+import chalk from 'chalk';
 
 function main(argv) {
     function rename(s) {
@@ -17,7 +18,7 @@ function main(argv) {
     const files = fs.readdirSync(argv.dir);
 
     if (files.length <= 0) {
-        console.log(`No match file in ${argv.dir}`);
+        console.log(chalk.yellow(`No match file in ${argv.dir}`));
         process.exit(0);
     }
 
@@ -33,7 +34,7 @@ function main(argv) {
             const newFile = path.resolve(argv.dir, newName);
             fs.renameSync(file, newFile);
             log.push({ file, newFile, time: new Date().toISOString() });
-            console.log(`Match ${name} => ${newName}`);
+            console.log(chalk.green(`Match ${name} => ${newName}`));
         }
     } finally {
         logs.push(log);
